@@ -21,10 +21,11 @@ echo -e "  ${BYellow}[ 2 ]${NC} ${BWhite}Hapus Akun SSH & Dropbear${NC}"
 echo -e "  ${BYellow}[ 3 ]${NC} ${BWhite}Perpanjang Akun SSH${NC}"
 echo -e "  ${BYellow}[ 4 ]${NC} ${BWhite}Cek User Login (Online)${NC}"
 echo -e "  ${BYellow}[ 5 ]${NC} ${BWhite}List Semua Akun SSH${NC}"
+echo -e "  ${BYellow}[ 6 ]${NC} ${BGreen}Update Script Menu${NC}"
 echo -e "  ${BRed}[ x ]${NC} ${BWhite}Keluar${NC}"
 echo -e ""
 echo -e "${BBlue}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-read -p "  Pilih Menu [1-5 / x] : " menu_idx
+read -p "  Pilih Menu [1-6 / x] : " menu_idx
 
 case $menu_idx in
     1)
@@ -130,6 +131,19 @@ case $menu_idx in
             exp=$(chage -l "$line" | grep "Account expires" | awk -F": " '{print $2}')
             echo -e "Username: ${BGreen}$line${NC} | Expired: ${BYellow}$exp${NC}"
         done
+        ;;
+    6)
+        clear
+        echo -e "${BBlue}=== UPDATE SCRIPT MENU ===${NC}"
+        echo -e "Menghubungi server Github..."
+        if wget -q --timeout=10 -4 -O /usr/local/bin/menu https://raw.githubusercontent.com/WBVPN/ssh-dropbear-enhanced/main/menu.sh; then
+            chmod +x /usr/local/bin/menu
+            echo -e "${BGreen}[V] Berhasil! Script menu telah diperbarui ke versi terbaru.${NC}"
+            echo -e "Silakan ketik ulang perintah 'menu' di terminal."
+            exit 0
+        else
+            echo -e "${BRed}[!] GAGAL: Terjadi masalah koneksi atau server Github sedang down.${NC}"
+        fi
         ;;
     x|X)
         exit 0
