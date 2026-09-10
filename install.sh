@@ -85,18 +85,22 @@ SERVICE
 
 # 5. INSTALL WEBSOCKET PYTHON (WS-STUNNEL)
 echo -e "${GREEN}[*] Menginstall SSH Websocket (Python)...${NC}"
-wget -q -O /usr/local/bin/ws-stunnel ${REPO_URL}/ws-stunnel
-wget -q -O /etc/systemd/system/ws-stunnel.service ${REPO_URL}/ws-stunnel.service
+echo "Mengunduh ws-stunnel..."
+wget -q --timeout=10 -4 -O /usr/local/bin/ws-stunnel ${REPO_URL}/ws-stunnel
+echo "Mengunduh ws-stunnel.service..."
+wget -q --timeout=10 -4 -O /etc/systemd/system/ws-stunnel.service ${REPO_URL}/ws-stunnel.service
 chmod +x /usr/local/bin/ws-stunnel
 chmod +x /etc/systemd/system/ws-stunnel.service
 
 # 6. CONFIG NGINX SEBAGAI REVERSE PROXY SSL & WS
+echo "Menulis konfigurasi Nginx..."
 cat << NGINXCONF > /etc/nginx/conf.d/ssh-ws.conf
 server {
     listen 80;
     listen [::]:80;
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
     server_name $domain;
 
     ssl_certificate /etc/ssl/private/fullchain.cer;
