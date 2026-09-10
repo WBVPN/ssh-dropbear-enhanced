@@ -33,17 +33,21 @@ chmod +x /root/.acme.sh/acme.sh
 
 # 4. INSTALL DROPBEAR 2019.78
 echo -e "${GREEN}[*] Kompilasi Dropbear 2019.78 Enhanced...${NC}"
+echo -e "Mohon tunggu 1-3 menit. Proses pengunduhan dan kompilasi sedang berjalan..."
 systemctl stop dropbear &>/dev/null
 apt-get purge dropbear -y &>/dev/null
 rm -rf /etc/dropbear /usr/sbin/dropbear /usr/lib/dropbear
 
 cd /usr/local/src
-wget -q --no-check-certificate -O dropbear-2019.78.tar.bz2 https://matt.ucc.asn.au/dropbear/releases/dropbear-2019.78.tar.bz2
+# Menggunakan --show-progress agar terlihat jika server Dropbear Australia sedang lambat (dan tidak terkesan mentok)
+wget -q --show-progress --no-check-certificate -O dropbear-2019.78.tar.bz2 https://matt.ucc.asn.au/dropbear/releases/dropbear-2019.78.tar.bz2
 tar -xjf dropbear-2019.78.tar.bz2
 cd dropbear-2019.78
-./configure --disable-zlib --enable-pam --enable-password-auth
-make
-make install
+
+# Redirect output make ke log agar layar tidak kotor, tetapi kompilasi tetap jalan
+./configure --disable-zlib --enable-pam --enable-password-auth > /tmp/dropbear_build.log 2>&1
+make >> /tmp/dropbear_build.log 2>&1
+make install >> /tmp/dropbear_build.log 2>&1
 cp dropbear /usr/sbin/dropbear
 mkdir -p /etc/dropbear
 
