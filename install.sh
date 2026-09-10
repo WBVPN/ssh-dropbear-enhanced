@@ -126,12 +126,16 @@ chmod +x /etc/systemd/system/ws-stunnel.service
 
 # 6. CONFIG NGINX SEBAGAI REVERSE PROXY SSL & WS
 echo "Menulis konfigurasi Nginx..."
+# Hapus default page bawaan OS agar payload Bug CDN bisa masuk tanpa bentrok
+rm -f /etc/nginx/sites-enabled/default
+rm -f /etc/nginx/sites-available/default
+
 cat << NGINXCONF > /etc/nginx/conf.d/ssh-ws.conf
 server {
-    listen 80;
-    listen [::]:80;
-    listen 443 ssl;
-    listen [::]:443 ssl;
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
     http2 on;
     server_name $domain;
 
