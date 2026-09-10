@@ -45,10 +45,10 @@ apt-get purge -y --force-yes dropbear &>/dev/null
 rm -rf /etc/dropbear /usr/sbin/dropbear /usr/lib/dropbear
 
 cd /usr/local/src
-# Menggunakan mirror Github yang super cepat & anti mati
-wget -q --show-progress --timeout=10 --no-check-certificate -O dropbear-2019.78.tar.gz https://github.com/mkj/dropbear/archive/refs/tags/DROPBEAR_2019.78.tar.gz
-tar -xzf dropbear-2019.78.tar.gz
-cd dropbear-DROPBEAR_2019.78
+# Mengunduh Source Tarball ASLI (sudah ada ./configure) dari Mirror Repositori Github kita sendiri
+wget -q --show-progress --timeout=10 --no-check-certificate -O dropbear-2019.78.tar.bz2 https://raw.githubusercontent.com/WBVPN/ssh-dropbear-enhanced/main/dropbear-2019.78.tar.bz2
+tar -xjf dropbear-2019.78.tar.bz2
+cd dropbear-2019.78
 
 # Redirect output make ke log agar layar tidak kotor, tetapi kompilasi tetap jalan
 ./configure --disable-zlib --enable-pam --enable-password-auth > /tmp/dropbear_build.log 2>&1
