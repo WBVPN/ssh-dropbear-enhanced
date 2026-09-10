@@ -163,4 +163,11 @@ wget -q -O /usr/local/bin/menu ${REPO_URL}/menu.sh
 chmod +x /usr/local/bin/menu
 
 echo -e "${GREEN}[*] Instalasi Selesai!${NC}"
-echo -e "Ketik perintah: 'menu' di terminal untuk membuka panel kelola akun SSH."
+# 9. AUTO-START MENU SAAT LOGIN
+echo -e "${GREEN}[*] Mengatur Auto-Start Menu...${NC}"
+if ! grep -q "/usr/local/bin/menu" /root/.profile; then
+    echo "clear" >> /root/.profile
+    echo "/usr/local/bin/menu" >> /root/.profile
+fi
+
+echo -e "Sekarang, setiap kali Anda login ke VPS, menu akan terbuka otomatis!"
