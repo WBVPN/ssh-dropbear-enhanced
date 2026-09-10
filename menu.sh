@@ -35,34 +35,42 @@ case $menu_idx in
         read -p "Expired (Hari) : " masaaktif
         
         # Validasi ketersediaan user (dan group bentrok)
+        if id "$Login" &>/dev/null; then
+            echo -e "${BRed}User $Login sudah ada di sistem!${NC}"
+            exit 1
+        fi
         if getent group "$Login" &>/dev/null; then
             echo -e "${BRed}Nama $Login bentrok dengan grup bawaan sistem. Gunakan nama lain!${NC}"
             exit 1
         fi
-        # Validasi ketersediaan user
-        if id "$Login" &>/dev/null; then
-            echo -e "${BRed}User $Login sudah ada!${NC}"
-            exit 1
-        fi
         
         exp=$(date -d "+${masaaktif} days" +"%Y-%m-%d")
+        
+        # Eksekusi Pembuatan User dengan Validasi Error
         if ! useradd -e "$exp" -s /bin/false -M "$Login" 2>/dev/null; then
             echo -e "${BRed}[!] FATAL: Gagal membuat user $Login di OS.${NC}"
             exit 1
         fi
+        
+        # Eksekusi Password
         if ! echo -e "$Login:$Pass" | chpasswd 2>/dev/null; then
             echo -e "${BRed}[!] FATAL: Gagal menetapkan password untuk $Login.${NC}"
             userdel -f "$Login" &>/dev/null
             exit 1
         fi
         
-        echo -e "${BBlue}━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-        echo -e "${BGreen}Detail Akun SSH & Dropbear${NC}"
-        echo -e "Username : $Login"
-        echo -e "Password : $Pass"
-        echo -e "Port     : 143, 109"
-        echo -e "Expired  : $exp"
-        echo -e "${BBlue}━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        DOMAIN=$(cat /root/domain 2>/dev/null || echo "IP-VPS-Anda")
+        echo -e "${BBlue}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${BGreen}    Detail Akun SSH & Dropbear    ${NC}"
+        echo -e "${BBlue}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "Domain     : $DOMAIN"
+        echo -e "Username   : $Login"
+        echo -e "Password   : $Pass"
+        echo -e "Port SSH   : 143, 109"
+        echo -e "Port WS    : 80 (Non-TLS)"
+        echo -e "Port WS/SSL: 443 (TLS)"
+        echo -e "Expired    : $exp"
+        echo -e "${BBlue}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         ;;
     2)
         clear
