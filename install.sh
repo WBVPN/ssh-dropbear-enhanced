@@ -18,7 +18,7 @@ echo -e "Domain Anda tersimpan: $domain"
 
 # 2. UPDATE & INSTALL DEPENDENCIES
 apt-get update -y
-apt-get install -y gcc make build-essential zlib1g-dev wget bzip2 python3 socat nginx
+apt-get install -y gcc make build-essential zlib1g-dev libpam0g-dev wget bzip2 python3 socat nginx
 
 # 3. SETUP SSL (Acme.sh)
 echo -e "${GREEN}[*] Menginstall Sertifikat SSL untuk $domain...${NC}"
@@ -51,7 +51,7 @@ tar -xjf dropbear-2019.78.tar.bz2
 cd dropbear-2019.78
 
 # Redirect output make ke log agar layar tidak kotor, tetapi kompilasi tetap jalan
-./configure --disable-zlib --enable-pam --enable-password-auth > /tmp/dropbear_build.log 2>&1
+./configure --disable-zlib --enable-pam > /tmp/dropbear_build.log 2>&1
 make >> /tmp/dropbear_build.log 2>&1
 make install >> /tmp/dropbear_build.log 2>&1
 cp dropbear /usr/sbin/dropbear
