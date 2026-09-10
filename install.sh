@@ -152,7 +152,7 @@ server {
     ssl_certificate_key /etc/ssl/private/private.key;
 
     location / {
-        if ($http_upgrade != "Websocket") {
+        if (\$http_upgrade != "Websocket") {
             rewrite /(.*) /fightertunnelssh break;
         }
         proxy_pass http://127.0.0.1:10015; # Port bawaan WS Wibulite
