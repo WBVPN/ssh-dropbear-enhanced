@@ -129,6 +129,8 @@ echo "Menulis konfigurasi Nginx..."
 # Hapus default page bawaan OS agar payload Bug CDN bisa masuk tanpa bentrok
 rm -f /etc/nginx/sites-enabled/default
 rm -f /etc/nginx/sites-available/default
+# Hapus juga sisa conf wibulite V9 agar tidak ada konflik "duplicate listen port"
+rm -f /etc/nginx/conf.d/*.conf
 
 cat << NGINXCONF > /etc/nginx/conf.d/ssh-ws.conf
 server {
