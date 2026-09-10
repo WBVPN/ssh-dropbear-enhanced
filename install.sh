@@ -10,6 +10,18 @@ REPO_URL="https://raw.githubusercontent.com/WBVPN/ssh-dropbear-enhanced/main"
 clear
 echo -e "${GREEN}[*] Memulai Instalasi SSH Dropbear Enhanced & Websocket...${NC}"
 
+# 0. DISABLE IPV6 (Pencegahan DNS Leak & RTO)
+echo -e "${GREEN}[*] Mematikan Protokol IPv6 di Kernel Linux...${NC}"
+sysctl -w net.ipv6.conf.all.disable_ipv6=1 &>/dev/null
+sysctl -w net.ipv6.conf.default.disable_ipv6=1 &>/dev/null
+sysctl -w net.ipv6.conf.lo.disable_ipv6=1 &>/dev/null
+cat << SYSCTL >> /etc/sysctl.conf
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+SYSCTL
+sysctl -p &>/dev/null
+
 # 1. SETUP DOMAIN
 echo -e "${GREEN}[*] Setup Domain SSH Websocket${NC}"
 read -p "Masukkan Domain Anda: " domain
