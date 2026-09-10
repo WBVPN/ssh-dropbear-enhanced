@@ -136,7 +136,6 @@ server {
     listen [::]:80 default_server;
     listen 443 ssl default_server;
     listen [::]:443 ssl default_server;
-    http2 on;
     server_name $domain;
 
     ssl_certificate /etc/ssl/private/fullchain.cer;
