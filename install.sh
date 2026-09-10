@@ -132,16 +132,27 @@ rm -f /etc/nginx/sites-available/default
 
 cat << NGINXCONF > /etc/nginx/conf.d/ssh-ws.conf
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    listen 443 ssl default_server;
-    listen [::]:443 ssl default_server;
+    listen 80;
+    listen 8080;
+    listen 8880;
+    listen 2052;
+    listen 2086;
+    listen 2095;
+    
+    listen 443 ssl reuseport;
+    listen 8443 ssl reuseport;
+    listen 2053 ssl reuseport;
+    listen 2087 ssl reuseport;
+    listen 2096 ssl reuseport;
     server_name $domain;
 
     ssl_certificate /etc/ssl/private/fullchain.cer;
     ssl_certificate_key /etc/ssl/private/private.key;
 
     location / {
+        if ($http_upgrade != "Websocket") {
+            rewrite /(.*) /fightertunnelssh break;
+        }
         proxy_pass http://127.0.0.1:10015; # Port bawaan WS Wibulite
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
