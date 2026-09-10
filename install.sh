@@ -22,9 +22,29 @@ net.ipv6.conf.lo.disable_ipv6 = 1
 SYSCTL
 sysctl -p &>/dev/null
 
-# 1. SETUP DOMAIN
+# 1. SETUP DOMAIN & VALIDASI IP
 echo -e "${GREEN}[*] Setup Domain SSH Websocket${NC}"
-read -p "Masukkan Domain Anda: " domain
+VPS_IP=$(curl -s ipv4.icanhazip.com || curl -s ifconfig.me)
+
+while true; do
+    read -p "Masukkan Domain Anda: " domain
+    echo -e "Memvalidasi pointing DNS untuk $domain..."
+    
+    # Validasi DNS (Menggunakan ping bawaan OS)
+    DOMAIN_IP=$(ping -c 1 -W 2 $domain 2>/dev/null | grep -E -o '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -n 1)
+    
+    if [ -z "$DOMAIN_IP" ]; then
+        echo -e "\033[0;31m[!] GAGAL: Domain tidak memiliki Record IP / DNS belum menyebar.\033[0m"
+        echo -e "Silakan coba lagi.\n"
+    elif [ "$DOMAIN_IP" == "$VPS_IP" ]; then
+        echo -e "${GREEN}[V] SUKSES: Pointing Valid! ($DOMAIN_IP)\033[0m"
+        break
+    else
+        echo -e "\033[0;31m[!] DITOLAK: IP Domain ($DOMAIN_IP) tidak cocok dengan IP VPS ($VPS_IP).\033[0m"
+        echo -e "Pastikan domain sudah dipointing dengan benar dan Awan Cloudflare (Proxied) dimatikan. Coba lagi.\n"
+    fi
+done
+
 echo "$domain" > /root/domain
 echo -e "Domain Anda tersimpan: $domain"
 
