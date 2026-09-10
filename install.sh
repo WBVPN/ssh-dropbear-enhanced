@@ -53,6 +53,9 @@ apt-get update -y
 apt-get install -y gcc make build-essential zlib1g-dev libpam0g-dev wget bzip2 python3 socat nginx
 
 # 3. SETUP SSL (Acme.sh)
+echo -e "${GREEN}[*] Mengizinkan Shell Dropbear...${NC}"
+echo "/bin/false" >> /etc/shells
+
 echo -e "${GREEN}[*] Menginstall Sertifikat SSL untuk $domain...${NC}"
 systemctl stop nginx
 mkdir -p /root/.acme.sh
