@@ -34,6 +34,11 @@ case $menu_idx in
         read -p "Password : " Pass
         read -p "Expired (Hari) : " masaaktif
         
+        # Validasi ketersediaan user (dan group bentrok)
+        if getent group "$Login" &>/dev/null; then
+            echo -e "${BRed}Nama $Login bentrok dengan grup bawaan sistem. Gunakan nama lain!${NC}"
+            exit 1
+        fi
         # Validasi ketersediaan user
         if id "$Login" &>/dev/null; then
             echo -e "${BRed}User $Login sudah ada!${NC}"
@@ -41,8 +46,15 @@ case $menu_idx in
         fi
         
         exp=$(date -d "+${masaaktif} days" +"%Y-%m-%d")
-        useradd -e "$exp" -s /bin/false -M "$Login"
-        echo -e "$Login:$Pass" | chpasswd
+        if ! useradd -e "$exp" -s /bin/false -M "$Login" 2>/dev/null; then
+            echo -e "${BRed}[!] FATAL: Gagal membuat user $Login di OS.${NC}"
+            exit 1
+        fi
+        if ! echo -e "$Login:$Pass" | chpasswd 2>/dev/null; then
+            echo -e "${BRed}[!] FATAL: Gagal menetapkan password untuk $Login.${NC}"
+            userdel -f "$Login" &>/dev/null
+            exit 1
+        fi
         
         echo -e "${BBlue}━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo -e "${BGreen}Detail Akun SSH & Dropbear${NC}"
