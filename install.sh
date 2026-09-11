@@ -222,7 +222,7 @@ frontend ssl_in
     bind *:777 ssl crt /etc/haproxy/hap.pem
     mode tcp
     tcp-request inspect-delay 500ms
-    tcp-request content accept if HTTP
+    tcp-request content accept if { req.ssl_hello_type 1 }
     
     acl is_ssh payload(0,7) -m bin 5353482d322e30
     
