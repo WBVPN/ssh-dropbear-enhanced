@@ -137,12 +137,10 @@ rm -f /etc/nginx/conf.d/*.conf
 
 cat << NGINXCONF > /etc/nginx/conf.d/ssh-ws.conf
 server {
-    listen 80;
+    listen 8000;
     listen 8080;
     listen 8880;
-    listen 2052;
-    listen 2086;
-    listen 2095;
+    
     
     listen 443 ssl reuseport;
     listen 8443 ssl reuseport;
@@ -174,6 +172,17 @@ systemctl restart dropbear
 systemctl enable ws-stunnel
 systemctl restart ws-stunnel
 systemctl enable nginx
+
+# 6.5. KONFIGURASI SSLH MULTIPLEXER (MEMBAGI PORT 80 UNTUK SSH & HTTP)
+echo -e "${GREEN}[*] Mengkonfigurasi SSLH Multiplexer...${NC}"
+cat << SSLHCONF > /etc/default/sslh
+RUN=yes
+DAEMON=/usr/sbin/sslh
+DAEMON_OPTS="--user sslh --listen 0.0.0.0:80 --ssh 127.0.0.1:143 --http 127.0.0.1:8000 --pidfile /var/run/sslh/sslh.pid"
+SSLHCONF
+systemctl enable sslh
+systemctl restart sslh
+
 systemctl restart nginx
 
 # 8. INSTALL MENU
