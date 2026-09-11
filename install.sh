@@ -200,6 +200,11 @@ socket = a:SO_REUSEADDR=1
 socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 
+sslVersion = all
+options = NO_SSLv2
+options = NO_SSLv3
+ciphers = ALL:!aNULL:!eNULL:!SSLv2
+
 [dropbear-sni-443]
 accept = 443
 connect = 127.0.0.1:143
