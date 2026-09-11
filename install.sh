@@ -183,6 +183,32 @@ SSLHCONF
 systemctl enable sslh
 systemctl restart sslh
 
+
+# 6.6. KONFIGURASI STUNNEL4 (METODE SNI / DIRECT SSL)
+echo -e "${GREEN}[*] Mengkonfigurasi Stunnel4 untuk Metode SNI...${NC}"
+export DEBIAN_FRONTEND=noninteractive
+apt install -y stunnel4
+cat << STUNNELCONF > /etc/stunnel/stunnel.conf
+pid = /var/run/stunnel.pid
+cert = /etc/ssl/private/fullchain.cer
+key = /etc/ssl/private/private.key
+client = no
+socket = a:SO_REUSEADDR=1
+socket = l:TCP_NODELAY=1
+socket = r:TCP_NODELAY=1
+
+[dropbear-sni]
+accept = 444
+connect = 127.0.0.1:143
+
+[dropbear-sni-alt]
+accept = 777
+connect = 127.0.0.1:143
+STUNNELCONF
+sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+systemctl enable stunnel4
+systemctl restart stunnel4
+
 systemctl restart nginx
 
 # 8. INSTALL MENU
