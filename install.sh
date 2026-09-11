@@ -186,41 +186,59 @@ systemctl restart sslh
 
 
 
-# 6.6. KONFIGURASI STUNNEL4 (METODE SNI / DIRECT SSL MURNI DI PORT 443)
-echo -e "${GREEN}[*] Mengkonfigurasi Stunnel4 TLS Decryptor...${NC}"
+
+# 6.6. KONFIGURASI HAPROXY (ULTIMATE MULTIPLEXER ALPN & FALLBACK)
+echo -e "${GREEN}[*] Mengkonfigurasi HAProxy TLS Fallback...${NC}"
 export DEBIAN_FRONTEND=noninteractive
-apt install -y stunnel4
+apt install -y haproxy
+mkdir -p /etc/haproxy
+cat /etc/ssl/private/fullchain.cer /etc/ssl/private/private.key > /etc/haproxy/hap.pem
 
-cat << STUNNELCONF > /etc/stunnel/stunnel.conf
-pid = /var/run/stunnel.pid
-cert = /etc/ssl/private/fullchain.cer
-key = /etc/ssl/private/private.key
-client = no
-socket = a:SO_REUSEADDR=1
-socket = l:TCP_NODELAY=1
-socket = r:TCP_NODELAY=1
+cat << HAPROXYCONF > /etc/haproxy/haproxy.cfg
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+    ca-base /etc/ssl/certs
+    crt-base /etc/ssl/private
+    ssl-default-bind-ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS
+    ssl-default-bind-options no-sslv3
 
-sslVersion = all
-options = NO_SSLv2
-options = NO_SSLv3
-ciphers = ALL:!aNULL:!eNULL:!SSLv2
+defaults
+    log     global
+    mode    tcp
+    option  tcplog
+    option  dontlognull
+    timeout connect 5000
+    timeout client  50000
+    timeout server  50000
 
-[dropbear-sni-443]
-accept = 443
-connect = 127.0.0.1:143
+frontend ssl_in
+    bind *:443 ssl crt /etc/haproxy/hap.pem alpn h2,http/1.1
+    mode tcp
+    tcp-request inspect-delay 100ms
+    acl is_http payload(0,3) -m str GET POS PUT DEL OPT
+    tcp-request content accept if is_http
+    
+    use_backend nginx_back if is_http
+    default_backend dropbear_back
 
-[dropbear-sni-444]
-accept = 444
-connect = 127.0.0.1:143
+backend dropbear_back
+    mode tcp
+    server dropbear 127.0.0.1:143
 
-[dropbear-sni-777]
-accept = 777
-connect = 127.0.0.1:143
-STUNNELCONF
+backend nginx_back
+    mode tcp
+    server nginx 127.0.0.1:8000
+HAPROXYCONF
 
-sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-systemctl enable stunnel4
-systemctl restart stunnel4
+systemctl enable haproxy
+systemctl restart haproxy
 
 
 
